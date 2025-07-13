@@ -1,0 +1,137 @@
+---
+networks:
+  sermas-external:
+    external: true
+  sermas-internal:
+    internal: true
+
+volumes:
+  sermas-db-data:
+  sermas-documents:
+  sermas-hf-cache:
+
+x-podman:
+  in_pod: false
+
+x-logging: &common-logging
+  options:
+    max-size: "50m"
+    max-file: "10"
+  driver: "json-file"
+
+x-healthcheck: &common-healthcheck
+  interval: 60s
+  timeout: 10s
+  retries: 10
+  start_period: 30s
+
+services:
+  db:
+    container_name: db
+    hostname: db
+    image: postgres:latest
+    restart: unless-stopped
+    init: true
+    networks:
+      - sermas-internal
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-alive_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alive_password}
+      POSTGRES_DB: ${POSTGRES_DB:-alive_db}
+      PGDATA: /var/lib/postgresql/data
+      PGPORT: "${PGPORT:-5432}"
+    ports:
+      - "${PGPORT:-5432}:${PGPORT:-5432}"
+    volumes:
+      - sermas-db-data:/var/lib/postgresql/data
+    healthcheck:
+      <<: *common-healthcheck
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "${POSTGRES_USER:-alive_user}",
+          "-d",
+          "${POSTGRES_DB:-alive_db}",
+          "-p",
+          "${PGPORT:-5432}",
+        ]
+    logging: *common-logging
+
+  eva:
+    container_name: eva
+    hostname: eva
+    image: ${EVA_IMAGE:-thingenious/sermas-eva:latest}
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Eva.Containerfile
+    init: true
+    networks:
+      - sermas-internal
+      - sermas-external
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-alive_user}:${POSTGRES_PASSWORD:-alive_password}@db:${PGPORT:-5432}/${POSTGRES_DB:-alive_db}"
+      CHAT_API_KEY: "${CHAT_API_KEY:-}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      LLM_PROVIDER: "${LLM_PROVIDER:-openai}"
+      LLM_MAX_TOKENS: "${LLM_MAX_TOKENS:-4096}"
+      MAX_HISTORY_MESSAGES: "${MAX_HISTORY_MESSAGES:-50}"
+      SUMMARY_THRESHOLD: "${SUMMARY_THRESHOLD:-30}"
+      RAG_DOCS_FOLDER: "${RAG_DOCS_FOLDER:-documents}"
+      CHROMA_LOCAL: "${CHROMA_LOCAL:-true}"
+      CHROMA_COLLECTION_NAME: "${CHROMA_COLLECTION_NAME:-eva_rag}"
+      EVA_HOST: "0.0.0.0"
+      EVA_PORT: "${EVA_PORT:-8000}"
+      HF_HOME: "/app/huggingface"
+    ports:
+      - "${EVA_PORT:-8000}:${EVA_PORT:-8000}"
+    # expose:
+    #  - "${EVA_PORT:-8000}"
+    volumes:
+      - sermas-db-data:/app/db_data
+      - sermas-documents:/app/documents
+      - sermas-hf-cache:/app/huggingface
+    healthcheck:
+      <<: *common-healthcheck
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import requests; requests.get('http://localhost:${EVA_PORT:-8000}/health', timeout=10).raise_for_status()",
+        ]
+    logging: *common-logging
+
+  avatar:
+    container_name: avatar
+    hostname: avatar
+    image: ${AVATAR_IMAGE:-thingenious/sermas-avatar:latest}
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Avatar.Containerfile
+    init: true
+    networks:
+      - sermas-internal
+      - sermas-external
+    depends_on:
+      eva:
+        condition: service_healthy
+    environment:
+      CHAT_API_KEY: "${CHAT_API_KEY:-}"
+      CHAT_WS_URL: "ws://eva:${EVA_PORT:-8000}/ws"
+      DID_API_KEY: "${DID_API_KEY:-}"
+      AZURE_SPEECH_API_KEY: "${AZURE_SPEECH_API_KEY:-}"
+      ASPNETCORE_URLS: "http://0.0.0.0:${AVATAR_PORT:-8080}"
+    ports:
+      - "${AVATAR_PORT:-8080}:${AVATAR_PORT:-8080}"
+    healthcheck:
+      <<: *common-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:${AVATAR_PORT:-8080}/health"]
+    logging: *common-logging

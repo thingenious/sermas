@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EVA Admin Panel</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1749b1;
+      --gray-bg: #f7fafc;
+      --gray-light: #e5e7eb;
+      --gray: #a0aec0;
+      --danger: #e11d48;
+      --radius: 12px;
+      --font-mono: "JetBrains Mono", "Fira Mono", "Menlo", "Monaco", "monospace";
+    }
+    body {
+      background: var(--gray-bg);
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    #main-container {
+      max-width: 860px;
+      margin: 36px auto;
+      padding: 32px 18px;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 28px 0 rgba(35,35,60,0.07);
+      min-height: 90vh;
+    }
+    h1 {
+      text-align: center;
+      letter-spacing: 0.01em;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 26px;
+    }
+    section {
+      margin-bottom: 38px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    section:last-child { border-bottom: none; }
+    h2 {
+      font-size: 1.18rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #1a2442;
+    }
+    textarea, input[type="text"], input[type="password"], input[type="file"] {
+      font-size: 1rem;
+      border: 1px solid var(--gray-light);
+      border-radius: 7px;
+      padding: 10px;
+      margin-top: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+      background: var(--gray-bg);
+      font-family: inherit;
+      resize: vertical;
+      transition: border 0.2s;
+    }
+    textarea:focus, input:focus {
+      border: 1.7px solid var(--primary);
+      outline: none;
+      background: #fff;
+    }
+    label { font-weight: 500; }
+
+    button {
+      font-family: inherit;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 7px;
+      font-size: 1rem;
+      margin-right: 7px;
+      margin-top: 7px;
+      cursor: pointer;
+      font-weight: 500;
+      box-shadow: 0 1px 3px 0 #e3e8ee;
+      transition: background 0.17s, box-shadow 0.18s, transform 0.13s;
+    }
+    button:active {
+      background: var(--primary-dark);
+      transform: scale(0.97);
+    }
+    button:hover, button:focus {
+      background: var(--primary-dark);
+      box-shadow: 0 2px 7px 0 #e1e7ef;
+    }
+    button[disabled] {
+      background: var(--gray);
+      color: #fff;
+      cursor: not-allowed;
+    }
+    .danger { background: var(--danger); }
+    .danger:hover { background: #a71b37; }
+
+    .status, .error {
+      font-size: 0.96em;
+      margin-left: 8px;
+      font-weight: 500;
+      vertical-align: middle;
+    }
+    .status { color: var(--primary-dark); }
+    .error { color: var(--danger); }
+
+    #tokenPrompt {
+      display: flex; justify-content: center; align-items: center;
+      margin-bottom: 26px; gap: 18px;
+      padding: 18px; border-radius: 8px; background: var(--gray-bg);
+    }
+    #tokenPrompt label { font-weight: 600; margin-right: 9px;}
+    ul { list-style: disc inside; padding-left: 12px; margin: 8px 0 0 0; }
+    li { margin-bottom: 4px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 10px 0 #f1f5fa;
+      font-size: 0.99rem;
+    }
+    th, td {
+      border-bottom: 1px solid var(--gray-light);
+      padding: 8px 12px;
+      text-align: left;
+      max-width: 270px;
+      word-break: break-all;
+    }
+    th {
+      background: var(--gray-bg);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #373e55;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f6faff; }
+
+    .row-buttons button { margin-right: 3px; }
+    .pagination {
+      display: flex; align-items: center; gap: 7px;
+      margin-top: 15px; font-size: 1.02rem;
+    }
+    @media (max-width: 700px) {
+      #main-container { padding: 12px 2vw; }
+      h1 { font-size: 1.22rem;}
+      th, td { font-size: 0.98rem;}
+    }
+  </style>
+</head>
+<body>
+  <div id="main-container">
+    <h1>EVA Admin Panel</h1>
+
+    <div id="tokenPrompt">
+      <label>
+        Admin API Key:
+        <input type="password" id="adminTokenInput" autocomplete="off" />
+      </label>
+      <button type="button" onclick="setToken()">Set</button>
+      <span id="tokenStatus"></span>
+    </div>
+
+    <div id="adminPanel" style="display: none;">
+      <!-- PROMPT SECTION -->
+      <section>
+        <h2>Prompt</h2>
+        <textarea id="promptText" rows="5"></textarea><br>
+        <button type="button" onclick="savePrompt()">Save Prompt</button>
+        <span id="promptStatus"></span>
+      </section>
+
+      <!-- RAG DOCS SECTION -->
+      <section>
+        <h2>RAG Documents</h2>
+        <ul id="docsList"></ul>
+        <input type="file" id="docFile" style="width:auto;display:inline;">
+        <button type="button" onclick="uploadDoc()">Upload</button>
+        <button type="button" onclick="reloadDocs()">Reload RAG</button>
+        <span id="docStatus"></span>
+      </section>
+
+      <!-- CONVERSATIONS SECTION -->
+      <section>
+        <h2>Conversations</h2>
+        <div id="conversationsStatus"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th>Download</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody id="conversationsTable"></tbody>
+        </table>
+        <div class="pagination">
+          <span id="pageInfo"></span>
+          <button type="button" onclick="prevPage()">Prev</button>
+          <button type="button" onclick="nextPage()">Next</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ======= CONFIG =======
+    const API_URL = "/admin";
+    const CONVERSATIONS_LIMIT = 20;
+    // ======================
+
+    let adminToken = "";
+    let page = 1;
+    let totalConversations = 0;
+
+    function setToken() {
+      const input = document.getElementById('adminTokenInput').value;
+      if (!input) {
+        document.getElementById('tokenStatus').textContent = " Please enter a key.";
+        document.getElementById('tokenStatus').className = "error";
+        return;
+      }
+      adminToken = input;
+      document.getElementById('tokenStatus').textContent = " Set!";
+      document.getElementById('tokenStatus').className = "status";
+      document.getElementById('adminPanel').style.display = "";
+      loadAll();
+    }
+
+    function fetchAuthed(path, options = {}) {
+      options.headers = Object.assign({}, options.headers, {
+        Authorization: "Bearer " + adminToken
+      });
+      return fetch(API_URL + path, options).then(async res => {
+        if (!res.ok) {
+          let err = await res.text();
+          throw new Error(err || res.statusText);
+        }
+        if (res.headers.get('content-type')?.includes("application/json")) {
+          return res.json();
+        }
+        return res;
+      });
+    }
+
+    // -------- PROMPT --------
+    function loadPrompt() {
+      fetchAuthed("/prompt")
+        .then(data => {
+          document.getElementById('promptText').value = data.prompt || "";
+        })
+        .catch(err => {
+          document.getElementById('promptStatus').textContent = " Failed to load prompt.";
+          document.getElementById('promptStatus').className = "error";
+        });
+    }
+
+    function savePrompt() {
+      const prompt = document.getElementById('promptText').value;
+      document.getElementById('promptStatus').textContent = "Saving...";
+      fetchAuthed("/prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + adminToken },
+        body: JSON.stringify({ prompt })
+      }).then(() => {
+        document.getElementById('promptStatus').textContent = "Saved!";
+        document.getElementById('promptStatus').className = "status";
+      }).catch(err => {
+        document.getElementById('promptStatus').textContent = " Error: " + err.message;
+        document.getElementById('promptStatus').className = "error";
+      });
+    }
+
+    // -------- RAG DOCS --------
+    function loadDocs() {
+      fetchAuthed("/documents").then(data => {
+        const ul = document.getElementById('docsList');
+        ul.innerHTML = "";
+        data.documents.forEach(doc => {
+          const li = document.createElement('li');
+          li.textContent = doc + " ";
+          const delBtn = document.createElement('button');
+          delBtn.textContent = "Delete";
+          delBtn.onclick = () => deleteDoc(doc);
+          li.appendChild(delBtn);
+          ul.appendChild(li);
+        });
+      });
+    }
+
+    function uploadDoc() {
+      const fileInput = document.getElementById('docFile');
+      if (!fileInput.files.length) return;
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      document.getElementById('docStatus').textContent = "Uploading...";
+      fetchAuthed("/documents", {
+        method: "POST",
+        body: formData
+      }).then(() => {
+        document.getElementById('docStatus').textContent = "Uploaded!";
+        fileInput.value = "";
+        loadDocs();
+      }).catch(err => {
+        document.getElementById('docStatus').textContent = " Error: " + err.message;
+        document.getElementById('docStatus').className = "error";
+      });
+    }
+
+    function deleteDoc(filename) {
+      if (!confirm("Delete " + filename + "?")) return;
+      fetchAuthed("/documents/" + encodeURIComponent(filename), { method: "DELETE" })
+        .then(() => {
+          loadDocs();
+        });
+    }
+
+    function reloadDocs() {
+      document.getElementById('docStatus').textContent = "Reloading...";
+      fetchAuthed("/reload", { method: "POST" })
+        .then(() => {
+          document.getElementById('docStatus').textContent = "Reloaded!";
+          setTimeout(() => document.getElementById('docStatus').textContent = "", 1000);
+        });
+    }
+
+    // -------- CONVERSATIONS --------
+    function loadConversations() {
+      document.getElementById('conversationsTable').innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+      fetchAuthed(`/conversations?limit=${CONVERSATIONS_LIMIT}&offset=${(page-1)*CONVERSATIONS_LIMIT}`)
+        .then(data => {
+          totalConversations = data.total || 0;
+          const tbody = document.getElementById('conversationsTable');
+          tbody.innerHTML = "";
+          data.conversations.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${c.id}</td>
+              <td>${c.created_at || ""}</td>
+              <td>${c.updated_at || ""}</td>
+              <td class="row-buttons"><button onclick="downloadConversation('${c.id}')">Download</button></td>
+              <td class="row-buttons"><button onclick="deleteConversation('${c.id}')">Delete</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+          document.getElementById('pageInfo').textContent =
+            `Page ${page} of ${Math.max(1, Math.ceil(totalConversations / CONVERSATIONS_LIMIT))}`;
+        })
+        .catch(err => {
+          document.getElementById('conversationsTable').innerHTML = `<tr><td colspan="5" class="error">Error loading: ${err.message}</td></tr>`;
+        });
+    }
+
+    function prevPage() {
+      if (page > 1) { page -= 1; loadConversations(); }
+    }
+    function nextPage() {
+      if (page * CONVERSATIONS_LIMIT < totalConversations) { page += 1; loadConversations(); }
+    }
+
+    function downloadConversation(id) {
+      fetchAuthed(`/conversations/${encodeURIComponent(id)}/download`)
+        .then(async res => {
+          const blob = new Blob([JSON.stringify(res, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `conversation_${id}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+    }
+
+    function deleteConversation(id) {
+      if (!confirm("Delete conversation " + id + "?")) return;
+      fetchAuthed(`/conversations/${encodeURIComponent(id)}`, { method: "DELETE" })
+        .then(() => {
+          loadConversations();
+        });
+    }
+
+    // -------- LOAD ALL --------
+    function loadAll() {
+      loadPrompt();
+      loadDocs();
+      loadConversations();
+    }
+
+    // Expose for inline event handlers
+    window.prevPage = prevPage;
+    window.nextPage = nextPage;
+    window.downloadConversation = downloadConversation;
+    window.deleteConversation = deleteConversation;
+    window.deleteDoc = deleteDoc;
+
+  </script>
+</body>
+</html>

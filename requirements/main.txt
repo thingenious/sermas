@@ -1,0 +1,34 @@
+PyMuPDF==1.26.3
+aiofiles==24.1.0
+aiohttp>=3.12.13
+aiosqlite==0.21.0
+anthropic==0.57.1
+chromadb
+faiss-cpu==1.11.0
+fastapi==0.116.0
+fpdf==1.7.2
+greenlet==3.2.3
+langchain==0.3.26
+langchain_community==0.3.27
+odfpy==1.4.1
+openai==1.93.2
+orjson==3.10.18
+pandas==2.3.1
+psycopg[binary,pool]>=3.2.9; sys_platform != 'linux' and platform_machine != 'arm64' and platform_machine != 'ARM64' and platform_machine != 'aarch64' and platform_machine != 'AARCH64'
+psycopg[binary,pool]>=3.2.9; sys_platform != 'win32'
+pyJWT[crypto]==2.10.1
+pydantic-settings==2.10.1
+pydantic>=2.11.7
+pydantic[email]==2.11.7
+pysqlite3-binary==0.5.4; sys_platform == 'linux' and platform_machine != 'arm64' and platform_machine != 'aarch64' and platform_machine != 'ARM64' and platform_machine != 'AARCH64'
+python-docx==1.2.0
+python-multipart==0.0.20
+python-ulid==3.0.0
+python_dotenv==1.1.1
+qdrant-client==1.14.3
+reportlab==4.4.2
+sentence-transformers==5.0.0
+uvicorn[standard]==0.35.0
+uvloop==0.21.0; sys_platform != 'win32'
+weaviate-client==4.15.4
+wsproto==1.2.0

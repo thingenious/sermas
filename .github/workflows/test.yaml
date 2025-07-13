@@ -1,0 +1,66 @@
+---
+name: Test
+
+# yamllint disable rule:truthy
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Display Python version
+        run: python3 -c "import sys; print(sys.version)"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/all.txt
+
+      - name: Create coverage directory
+        run: mkdir -p coverage
+
+      - name: Run tests
+        run: |
+          pytest -c pyproject.toml \
+            --cov=eva \
+            --cov-branch \
+            --cov-report=term-missing:skip-covered \
+            --cov-report=lcov:coverage/lcov.info \
+            --cov-report=html:coverage/html \
+            --cov-report=xml:coverage/coverage.xml \
+            --junitxml=coverage/xunit.xml tests
+
+      - name: Report to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+          fail-on-error: false

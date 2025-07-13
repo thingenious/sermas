@@ -1,0 +1,14 @@
+# Ignore everything
+**
+# but not these
+!eva/
+!requirements/
+!avatar/wwwroot/
+!avatar/Services/
+!avatar/Properties/
+!avatar/Models/
+!avatar/Controllers/
+!**/*.csproj
+!**/*.sln
+!avatar/Program.cs
+!avatar/appsettings.json

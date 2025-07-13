@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "backdrop-filter"
+        ]
+      }
+    ],
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "video[playsinline]"
+        ]
+      }
+    ],
+    "no-inline-styles": "off"
+  }
+}

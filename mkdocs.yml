@@ -1,0 +1,72 @@
+---
+site_name: EVA WebSocket Chat API
+# yamllint disable rule:line-length
+site_description: Real-time chat API service with WebSockets, conversation history, and RAG capabilities
+site_author: EVA API Team
+site_url: https://thingenious.github.io/sermas/
+repo_name: thingenious/sermas
+repo_url: https://github.com/thingenious/sermas
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          # yamllint disable
+          format: !!python/name:pymdownx.superfences.fence_code_format ""
+          # yamllint enable
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference: api-reference.md
+  - Client Examples: client-examples.md

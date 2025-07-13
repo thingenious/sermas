@@ -1,0 +1,8 @@
+dist/
+.venv/
+.local/
+out/
+coverage/
+node_modules/
+documents/
+**/*cahe*
