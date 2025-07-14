@@ -49,6 +49,7 @@ jobs:
         with:
           platforms: |
             linux/amd64
+            linux/arm64
           file: Eva.Containerfile
           context: .
           push: true
@@ -60,6 +61,7 @@ jobs:
         with:
           platforms: |
             linux/amd64
+            linux/arm64
           file: Avatar.Containerfile
           context: .
           push: true
