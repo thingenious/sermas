@@ -3,4 +3,4 @@
 
 """Version information for eva."""
 
-__version__ = VERSION = "0.1.0"
+__version__ = "0.1.0"
