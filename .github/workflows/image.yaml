@@ -70,8 +70,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=Apache-2.0
           provenance: true
-          attestations: |
-            type=sbom
+          sbom: true
 
       - name: Build and push avatar image
         uses: docker/build-push-action@v6
@@ -91,5 +90,4 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=Apache-2.0
           provenance: true
-          attestations: |
-            type=sbom
+          sbom: true
