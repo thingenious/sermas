@@ -316,8 +316,13 @@ class ChatApplication:
                 rag_results,
             )
             rag_context = "\n".join([doc["content"] for doc in rag_results])
-
-            system_prompt_parts = [BASE_SYSTEM_PROMPT]
+            prompt_in_db = await self.app.db_manager.get_admin_setting("prompt")
+            if not prompt_in_db:
+                prompt_in_db = BASE_SYSTEM_PROMPT
+                await self.app.db_manager.set_admin_setting(
+                    "prompt", prompt_in_db
+                )
+            system_prompt_parts = [prompt_in_db]
 
             # Summary (if available)
             latest_summary = await self.app.db_manager.get_latest_summary(
