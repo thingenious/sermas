@@ -110,6 +110,9 @@ async def test_websocket_chat_with_managers_mocked() -> None:
 
     # Mock for db_manager (minimal, just conversation CRUD)
     mock_db = MagicMock()
+    mock_db.get_admin_setting = AsyncMock(
+        return_value="You are a helpful assistant."
+    )
     mock_db.create_conversation = AsyncMock(return_value="conv123")
     mock_db.save_message = AsyncMock()
     mock_db.get_conversation_messages = AsyncMock(
