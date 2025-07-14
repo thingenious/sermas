@@ -1,6 +1,5 @@
 ---
 name: Image 🐳
-# yamllint disable rule:truthy
 on:
   push:
     tags:
@@ -15,6 +14,8 @@ on:
 permissions:
   contents: read
   packages: write
+  attestations: write
+  id-token: write
 
 jobs:
   docker:
@@ -34,10 +35,17 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Login to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Determine Docker Tag
         id: docker_tag
         run: |
-          if  [[ "${{github.event_name}}" == 'push' ]]; then
+          if [[ "${{github.event_name}}" == 'push' ]]; then
             tag="${{ github.ref_name }}"
           else
             tag="${{ github.event.inputs.version_tag }}"
@@ -55,6 +63,15 @@ jobs:
           push: true
           tags: |
             thingenious/sermas-eva:${{ steps.docker_tag.outputs.docker_tag }}
+            ghcr.io/${{ github.repository_owner }}/sermas-eva:${{ steps.docker_tag.outputs.docker_tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=EVA component of the ALIVE system
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=Apache-2.0
+          provenance: true
+          attestations: |
+            type=sbom
 
       - name: Build and push avatar image
         uses: docker/build-push-action@v6
@@ -67,3 +84,12 @@ jobs:
           push: true
           tags: |
             thingenious/sermas-avatar:${{ steps.docker_tag.outputs.docker_tag }}
+            ghcr.io/${{ github.repository_owner }}/sermas-avatar:${{ steps.docker_tag.outputs.docker_tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=Avatar component of the ALIVE system
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=Apache-2.0
+          provenance: true
+          attestations: |
+            type=sbom
