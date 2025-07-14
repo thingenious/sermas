@@ -52,7 +52,7 @@ Update `.env` with valid API keys for:
 ### 2. Run with Docker Compose
 
 ```bash
-docker compose --env-file .env -f docker-compose.yaml up --build
+docker compose --env-file .env -f compose.yaml up --build
 ```
 
 Services will be available at:
