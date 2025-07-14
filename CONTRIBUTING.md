@@ -32,7 +32,14 @@ Whether you're fixing bugs, adding features, improving docs, or suggesting ideas
 
 ```bash
 cp .env.example .env
-cp compose.example.yaml docker-compose.yaml
+cp compose.example.yaml compose.yaml
+# make sure the external network is created
+docker network create sermas-external 2>/dev/null || true
+# (on windows, that would be sth like):
+# assuming PowerShell is used
+# if (-not (docker network inspect sermas-external -ErrorAction SilentlyContinue)) {
+#     docker network create sermas-external
+# }
 docker compose --env-file .env up --build
 ```
 
