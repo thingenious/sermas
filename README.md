@@ -1,6 +1,6 @@
 # ALIVE – Avatar Liveness for Intelligent Virtual Empathy
 
-[![Coverage Status](https://coveralls.io/repos/github/thingenious/sermas/badge.svg)](https://coveralls.io/github/thingenious/sermas)
+[![Coverage Status](https://coveralls.io/repos/github/thingenious/sermas/badge.svg)](https://coveralls.io/github/thingenious/sermas) [![Test](https://github.com/thingenious/sermas/actions/workflows/test.yaml/badge.svg)](https://github.com/thingenious/sermas/actions/workflows/test.yaml)
 
 **ALIVE** is an integrated conversational AI system combining empathetic WebSocket-based chat (`eva/`) with avatar-driven emotional speech and facial animation (`avatar/`). It enables immersive, emotionally intelligent interactions using LLMs, RAG, D-ID, Azure Speech, and WebRTC.
 
