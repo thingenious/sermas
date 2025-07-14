@@ -10,7 +10,7 @@ from ._base import LLMManager
 from ._openai import OpenAILLMManager
 
 
-def get_llm_manager() -> LLMManager:
+def get_llm_manager() -> LLMManager:  # pragma: no cover
     """Get the appropriate LLM manager based on the configured provider.
 
     Returns

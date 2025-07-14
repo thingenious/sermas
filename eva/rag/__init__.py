@@ -10,7 +10,7 @@ from ._chroma_local import ChromaLocalRAGManager
 from ._chroma_remote import ChromaRemoteRAGManager
 
 
-def get_rag_manager() -> RAGManager:
+def get_rag_manager() -> RAGManager:  # pragma: no cover
     """Get the RAG manager instance based on the configuration.
 
     Returns

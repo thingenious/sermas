@@ -3,7 +3,6 @@
 # pylint: disable=unused-argument
 """Admin API for the EVA application."""
 
-from functools import wraps
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +11,7 @@ from fastapi import (
     Body,
     Depends,
     File,
+    Header,
     HTTPException,
     Request,
     UploadFile,
@@ -55,7 +55,7 @@ def get_rag_manager(request: Request) -> RAGManager:
     return request.app.rag_manager
 
 
-def admin_auth(authorization: str | None = None) -> None:
+def admin_auth(authorization: str | None = Header(default=None)) -> None:
     """Bearer Token authentication for admin routes.
 
     Parameters
@@ -73,47 +73,6 @@ def admin_auth(authorization: str | None = None) -> None:
     expected = f"Bearer {settings.admin_api_key}"
     if authorization != expected:
         raise HTTPException(status_code=401, detail="Unauthorized")
-
-
-def admin_protected(func: Any) -> Any:
-    """Protect admin routes with authentication.
-
-    Parameters
-    ----------
-    func : Any
-        The function to wrap with admin authentication.
-
-    Returns
-    -------
-    Any
-        The wrapped function that enforces admin authentication.
-    """
-
-    @wraps(func)
-    async def wrapper(
-        *args: Any,
-        authorization: str = Depends(admin_auth),
-        **kwargs: Any,
-    ) -> Any:
-        """Enforce admin authentication.
-
-        Parameters
-        ----------
-        *args : Any
-            Positional arguments passed to the wrapped function.
-        authorization : str
-            The Authorization header value, provided by the Depends dependency.
-        **kwargs : Any
-            Keyword arguments passed to the wrapped function.
-
-        Returns
-        -------
-        Any
-            The result of the wrapped function.
-        """
-        return await func(*args, **kwargs)
-
-    return wrapper
 
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -136,8 +95,8 @@ async def serve_admin_panel() -> HTMLResponse:
 
 
 @router.get("/prompt")
-@admin_protected
 async def get_prompt(
+    _: str = Depends(admin_auth),
     db: DatabaseManager = Depends(get_db_manager),  # noqa: B008
 ) -> dict[str, str]:
     """Get the admin prompt setting.
@@ -157,9 +116,9 @@ async def get_prompt(
 
 
 @router.post("/prompt")
-@admin_protected
 async def set_prompt(
     prompt: str = Body(..., embed=True),
+    _: str = Depends(admin_auth),
     db: DatabaseManager = Depends(get_db_manager),  # noqa: B008
 ) -> dict[str, str]:
     """Set the admin prompt setting.
@@ -181,8 +140,9 @@ async def set_prompt(
 
 
 @router.get("/documents")
-@admin_protected
-async def list_docs() -> dict[str, list[str]]:
+async def list_docs(
+    _: str = Depends(admin_auth),
+) -> dict[str, list[str]]:
     """List all documents in the RAG documents folder.
 
     Returns
@@ -197,9 +157,9 @@ async def list_docs() -> dict[str, list[str]]:
 
 
 @router.post("/documents")
-@admin_protected
 async def upload_doc(
     file: UploadFile = File(...),  # noqa: B008
+    _: str = Depends(admin_auth),
 ) -> dict[str, str]:  # noqa: B008
     """Upload a document to the RAG documents folder.
 
@@ -227,8 +187,10 @@ async def upload_doc(
 
 
 @router.delete("/documents/{filename}")
-@admin_protected
-async def delete_doc(filename: str) -> dict[str, str]:
+async def delete_doc(
+    filename: str,
+    _: str = Depends(admin_auth),
+) -> dict[str, str]:
     """Delete a document from the RAG documents folder.
 
     Parameters
@@ -254,8 +216,8 @@ async def delete_doc(filename: str) -> dict[str, str]:
 
 
 @router.post("/reload")
-@admin_protected
 async def reload_docs(
+    _: str = Depends(admin_auth),
     rag_manager: RAGManager = Depends(get_rag_manager),  # noqa: B008
 ) -> dict[str, str]:
     """Reload documents in the RAG manager.
@@ -276,8 +238,8 @@ async def reload_docs(
 
 # List conversations
 @router.get("/conversations")
-@admin_protected
 async def list_conversations(
+    _: str = Depends(admin_auth),
     db: DatabaseManager = Depends(get_db_manager),  # noqa: B008
     limit: int = 100,
     offset: int = 0,
@@ -321,9 +283,9 @@ async def list_conversations(
 
 # Download a conversation
 @router.get("/conversations/{conversation_id}/download")
-@admin_protected
 async def download_conversation(
     conversation_id: str,
+    _: str = Depends(admin_auth),
     db: DatabaseManager = Depends(get_db_manager),  # noqa: B008
 ) -> JSONResponse:
     """Download a conversation by its ID.
@@ -355,9 +317,9 @@ async def download_conversation(
 
 # Delete a conversation
 @router.delete("/conversations/{conversation_id}")
-@admin_protected
 async def delete_conversation(
     conversation_id: str,
+    _: str = Depends(admin_auth),
     db: DatabaseManager = Depends(get_db_manager),  # noqa: B008
 ) -> dict[str, str]:
     """Delete a conversation by its ID.
