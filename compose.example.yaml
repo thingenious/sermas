@@ -128,10 +128,10 @@ services:
       CHAT_WS_URL: "ws://eva:${EVA_PORT:-8000}/ws"
       DID_API_KEY: "${DID_API_KEY:-}"
       AZURE_SPEECH_API_KEY: "${AZURE_SPEECH_API_KEY:-}"
-      ASPNETCORE_URLS: "http://0.0.0.0:${AVATAR_PORT:-8080}"
+      ASPNETCORE_URLS: "http://0.0.0.0:${AVATAR_PORT:-3000}"
     ports:
-      - "${AVATAR_PORT:-8080}:${AVATAR_PORT:-8080}"
+      - "${AVATAR_PORT:-3000}:${AVATAR_PORT:-3000}"
     healthcheck:
       <<: *common-healthcheck
-      test: ["CMD", "curl", "-f", "http://localhost:${AVATAR_PORT:-8080}/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${AVATAR_PORT:-3000}/health"]
     logging: *common-logging
