@@ -70,3 +70,7 @@ nav:
   - Getting Started: getting-started.md
   - API Reference: api-reference.md
   - Client Examples: client-examples.md
+  - Sermas:
+      - Introduction: sermas/introduction.md
+      - Architecture: sermas/architecture.md
+      - Deployment: sermas/deployment.md
