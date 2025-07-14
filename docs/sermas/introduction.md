@@ -1,6 +1,7 @@
 ---
 sidebar_position: 0.0005
 ---
+
 # Introduction
 
 **ALIVE** (Avatar Liveness for Intelligent Virtual Empathy) is an open, modular system for building emotionally intelligent, multimodal virtual assistants. Designed as part of the [SERMAS Project](https://sermasproject.eu/), ALIVE integrates natural language processing, emotional modeling, real-time WebSocket communication, and 3D avatar animation into a unified experience.
@@ -12,6 +13,8 @@ At its core, ALIVE aims to combine **meaningful dialogue** with **human-like pre
 - 🧍‍♀️ **Avatar Expression** – lifelike visual feedback using D-ID and emotional TTS
 - 🎙️ **Multimodal Input** – support for both typed and spoken interactions
 - 🌐 **Real-Time WebSocket Streaming** – ensures low-latency conversational flow
+
+![Preview](images/preview.webp "Preview")
 
 ---
 
