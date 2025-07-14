@@ -2,7 +2,7 @@ using AliveOnD_ID.Controllers.Responses;
 
 namespace AliveOnD_ID.Services;
 
-    public class PendingRequest
+public class PendingRequest
 {
     public string Id { get; }
     public TaskCompletionSource<LLMResponse> TaskCompletionSource { get; }

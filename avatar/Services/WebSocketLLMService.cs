@@ -177,7 +177,14 @@ public class WebSocketLLMService : ILLMService, IDisposable
     {
         try
         {
-            HandleMessage(message.Text);
+            if (message.Text != null)
+            {
+                HandleMessage(message.Text);
+            }
+            else
+            {
+                _logger.LogWarning("Received WebSocket message with null Text property");
+            }
         }
         catch (Exception ex)
         {
@@ -360,8 +367,8 @@ public class WebSocketLLMService : ILLMService, IDisposable
             _conversationStartTcs = new TaskCompletionSource<bool>();
 
             var startMessage = existingConversationId != null
-                ? new EVEStartConversationMessage{ Type = "start_conversation", ConversationID = existingConversationId }
-                : new EVEStartConversationMessage{ Type = "start_conversation" };
+                ? new EVEStartConversationMessage { Type = "start_conversation", ConversationID = existingConversationId }
+                : new EVEStartConversationMessage { Type = "start_conversation" };
 
             await SendMessageAsync(JsonSerializer.Serialize(startMessage));
 
